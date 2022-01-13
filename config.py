@@ -18,7 +18,7 @@ POSTGRES_URI = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
 # первый админ будет создатель бота, затем он добавит модераторов и админов.
 # модераторам и админам не нужно проходить регистрацию - заполнять анкету
-SUPER_ADMIN_NAME = env.str("SUPER_ADMIN_NAME")
+SUPER_ADMIN_USERNAME = env.str("SUPER_ADMIN_USERNAME")
 SUPER_ADMIN_ID = env.int("SUPER_ADMIN_ID")
 SUPER_ADMIN_STATUS = env.str("SUPER_ADMIN_STATUS")
 
