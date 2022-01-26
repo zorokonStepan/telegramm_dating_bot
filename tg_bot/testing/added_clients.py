@@ -19,6 +19,8 @@ async def added_test_client():
                 'представляет историю жизни субъекта, выделяя различные аспекты его жизни, в том числе интимных ' \
                 'подробностей, и может включать в себя анализ личности субъекта.'
 
+    biography = "test_biography"
+
     await UserDB(user_id=1, username="zzzz", client_state="client", name="ZZZZ", age=24,
                  gender="Женщина", biography=biography, latitude=59.848311,
                  longitude=30.361708, search_gender="Мужчина",

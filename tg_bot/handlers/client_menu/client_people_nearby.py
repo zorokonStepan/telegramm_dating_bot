@@ -9,7 +9,7 @@ from create_bot import bot
 from tg_bot.database.schemas.book_complaints_commands.commands_book_complaints_db import add_record
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user, selection_users, \
     append_users_i_liked, append_user_who_liked_me
-from tg_bot.filters import IsClient, IsModerator, IsSuperAdmin, IsAdmin
+from tg_bot.filters import IsSuperAdminOrAdminOrModerOrClient
 from tg_bot.handlers.managers.manager import back_menu_as_client
 from tg_bot.handlers.templetes_handlers.tmp_card_user import search_all, see_card
 from tg_bot.handlers.templetes_handlers.tmp_misc import get_caption_users
@@ -108,21 +108,19 @@ async def complaint_user(call: Union[types.CallbackQuery, types.Message], state:
             await search_my_choice(call, callback_data)
         # иначе возвращаемся в главное меню или в меню в роли клиента
         else:
-            await back_menu_as_client(call)
+            await back_menu_as_client(call, state)
 
 
-# возможно есть смысл сделать фильтр IsSuperAdmin_IsAdmin_IsModerator_IsClient() - для поиска по БД за один запрос
 def register_handlers_client_people_nearby(dp: Dispatcher):
     dp.register_callback_query_handler(search_my_choice,
-                                       IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+                                       IsSuperAdminOrAdminOrModerOrClient(),
                                        all_users_callback.filter(category="people_nearby"))
     dp.register_callback_query_handler(see_card_user_my_choice,
-                                       IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+                                       IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="people_nearby", value="value"))
     dp.register_callback_query_handler(like_card_user_my_choice,
-                                       IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+                                       IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="people_nearby"))
-    dp.register_callback_query_handler(complaint_user, IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(complaint_user, IsSuperAdminOrAdminOrModerOrClient(),
                                        claim_callback.filter(category="people_nearby"), state="wait_claim")
-    dp.register_message_handler(complaint_user, IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
-                                state="wait_claim")
+    dp.register_message_handler(complaint_user, IsSuperAdminOrAdminOrModerOrClient(), state="wait_claim")

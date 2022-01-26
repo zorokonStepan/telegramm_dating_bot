@@ -165,7 +165,8 @@ def register_handlers_registration_new_client(dp: Dispatcher):
     dp.register_message_handler(load_photo, IsNewClient(), content_types=['photo'], state=Reg.Photo)
     dp.register_message_handler(load_location, IsNewClient(), content_types=types.ContentTypes.LOCATION,
                                 state=Reg.Location)
-    dp.register_callback_query_handler(search_gender, IsNewClient(), gender_callback.filter(), state=Reg.SearchGender)
+    dp.register_callback_query_handler(search_gender, IsNewClient(), gender_callback.filter(),
+                                       state=Reg.SearchGender)
     dp.register_message_handler(search_age, IsNewClient(), state=Reg.SearchAge)
     dp.register_message_handler(search_location, IsNewClient(), content_types=types.ContentTypes.LOCATION,
                                 state=Reg.SearchLocation)

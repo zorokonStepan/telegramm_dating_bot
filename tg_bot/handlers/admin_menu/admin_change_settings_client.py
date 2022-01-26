@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 from tg_bot.database.schemas.users_commands import common_commands_users_db as commands
-from tg_bot.filters import IsSuperAdmin, IsAdmin
+from tg_bot.filters import IsSuperAdminOrAdmin
 from tg_bot.handlers.templetes_handlers.tmp_card_user import see_card
 from tg_bot.handlers.templetes_handlers.tmp_change_settings import change_photo_user
 from tg_bot.handlers.templetes_handlers.tmp_misc import state_finish_sleep_bot_del_msg_message_delete, \
@@ -18,9 +18,6 @@ from tg_bot.misc.user_status import status_user
 from tg_bot.states.user_states import AdminChangeClient
 
 """В этом модуле все обработчики для изменения настроек администраторами
-***********************************************************************************************************************
-state_save_data_sleep_bot_delete_msg, state_finish_sleep_bot_del_msg_message_delete, 
-sleep_bot_delete_msg_message_delete - функции для оптимизации кода, названия так себе, зато понятно
 ***********************************************************************************************************************
 чтобы вернуться на страницу пользователя у которого меняются настройки используется схема:
 
@@ -313,61 +310,60 @@ async def load_admin_change_search_radius_client(message: types.Message, state: 
         await sleep_bot_delete_msg_message_delete(msg, message)
 
 
-# возможно есть смысл сделать фильтр IsSuperAdminAndIsAdmin() - для поиска по БД за один запрос
 def register_admin_change_settings_client_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(start_admin_change_settings_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(start_admin_change_settings_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_set_clt"))
-    dp.register_message_handler(start_admin_change_settings_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(start_admin_change_settings_client, IsSuperAdminOrAdmin(),
                                 text="admin_change_settings_client")
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_name_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_name_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_name"))
-    dp.register_message_handler(load_admin_change_name_client, IsSuperAdmin() | IsAdmin(), state=AdminChangeClient.Name)
+    dp.register_message_handler(load_admin_change_name_client, IsSuperAdminOrAdmin(), state=AdminChangeClient.Name)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_age_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_age_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_age"))
-    dp.register_message_handler(load_admin_change_age_client, IsSuperAdmin() | IsAdmin(), state=AdminChangeClient.Age)
+    dp.register_message_handler(load_admin_change_age_client, IsSuperAdminOrAdmin(), state=AdminChangeClient.Age)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_gender_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_gender_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_gend"))
-    dp.register_callback_query_handler(load_admin_change_gender_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(load_admin_change_gender_client, IsSuperAdminOrAdmin(),
                                        gender_callback.filter(), state=AdminChangeClient.Gender)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_biography_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_biography_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_braphy"))
-    dp.register_message_handler(load_admin_change_biography_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_biography_client, IsSuperAdminOrAdmin(),
                                 state=AdminChangeClient.Biography)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_location_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_location_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_loc"))
-    dp.register_message_handler(load_admin_change_location_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_location_client, IsSuperAdminOrAdmin(),
                                 content_types=types.ContentTypes.LOCATION, state=AdminChangeClient.Location)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_search_gender_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_search_gender_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_s_gend"))
-    dp.register_callback_query_handler(load_admin_change_search_gender_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(load_admin_change_search_gender_client, IsSuperAdminOrAdmin(),
                                        gender_callback.filter(), state=AdminChangeClient.SearchGender)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_search_age_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_search_age_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_s_age"))
-    dp.register_message_handler(load_admin_change_search_age_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_search_age_client, IsSuperAdminOrAdmin(),
                                 state=AdminChangeClient.SearchAge)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_search_location_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_search_location_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_s_loc"))
-    dp.register_message_handler(load_admin_change_search_location_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_search_location_client, IsSuperAdminOrAdmin(),
                                 content_types=types.ContentTypes.LOCATION, state=AdminChangeClient.SearchLocation)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_change_search_radius_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_search_radius_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_s_rad"))
-    dp.register_message_handler(load_admin_change_search_radius_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_search_radius_client, IsSuperAdminOrAdmin(),
                                 state=AdminChangeClient.SearchRadius)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_see_first_photo_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_see_first_photo_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="chg_c_ph"))
-    dp.register_callback_query_handler(admin_see_photos_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_see_photos_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter(value="value"))
-    dp.register_callback_query_handler(admin_change_photo_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_callback_query_handler(admin_change_photo_client, IsSuperAdminOrAdmin(),
                                        change_user_card_callback.filter())
-    dp.register_message_handler(load_admin_change_photo_client, IsSuperAdmin() | IsAdmin(),
+    dp.register_message_handler(load_admin_change_photo_client, IsSuperAdminOrAdmin(),
                                 content_types=['photo'], state=AdminChangeClient.Photo)

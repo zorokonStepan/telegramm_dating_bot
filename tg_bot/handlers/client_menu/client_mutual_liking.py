@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user, \
     delete_user_mutual_liking, delete_user_i_liked, delete_who_liked_me
-from tg_bot.filters import IsClient, IsModerator, IsSuperAdmin, IsAdmin
+from tg_bot.filters import IsSuperAdminOrAdminOrModerOrClient
 from tg_bot.handlers.managers.manager import back_menu_as_client
 from tg_bot.handlers.templetes_handlers.tmp_card_user import search_all, see_card
 from tg_bot.keyboards.callback_datas.cb_datas import user_card_callback, all_users_callback
@@ -77,13 +77,12 @@ async def delete_card_liking_user(call: types.CallbackQuery, callback_data: dict
         await back_menu_as_client(call, state)
 
 
-# возможно есть смысл сделать фильтр IsSuperAdmin_IsAdmin_IsModerator_IsClient() - для поиска по БД за один запрос
 def register_handlers_client_mutual_liking(dp: Dispatcher):
     dp.register_callback_query_handler(search_liking_users,
-                                       IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+                                       IsSuperAdminOrAdminOrModerOrClient(),
                                        all_users_callback.filter(category="users_like"))
     dp.register_callback_query_handler(see_card_liking_user,
-                                       IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+                                       IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="users_like", value="value"))
-    dp.register_callback_query_handler(delete_card_liking_user, IsClient() | IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(delete_card_liking_user, IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="users_like"))

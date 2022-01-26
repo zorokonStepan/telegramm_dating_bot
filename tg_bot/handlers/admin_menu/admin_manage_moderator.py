@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from tg_bot.database.schemas.users_commands import manager_commands_users_db as commands
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user, delete_user
 from tg_bot.database.schemas.users_commands.manager_commands_users_db import select_post_managers, update_post_manager
-from tg_bot.filters import IsAdmin, IsSuperAdmin
+from tg_bot.filters import IsSuperAdminOrAdmin
 from tg_bot.handlers.templetes_handlers.tmp_card_user import search_all, see_card
 from tg_bot.handlers.templetes_handlers.tmp_manage_manager import load_new_manager
 from tg_bot.handlers.templetes_handlers.tmp_misc import get_caption_manager, welcome_block_call
@@ -99,21 +99,20 @@ async def admin_delete_all_moders(call: types.CallbackQuery):
     await call.answer("Все модераторы удалены.")
 
 
-# возможно есть смысл сделать фильтр IsSuperAdminAndIsAdmin() - для поиска по БД за один запрос
 def register_admin_manage_moderator_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(start_manage_moders, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(start_manage_moders, IsSuperAdminOrAdmin(),
                                        text="start_manage_moderators_menu")
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_add_moder, IsAdmin() | IsSuperAdmin(), text="add_moder")
-    dp.register_message_handler(admin_load_new_moder, IsAdmin() | IsSuperAdmin(), state="load_moder_info")
+    dp.register_callback_query_handler(admin_add_moder, IsSuperAdminOrAdmin(), text="add_moder")
+    dp.register_message_handler(admin_load_new_moder, IsSuperAdminOrAdmin(), state="load_moder_info")
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(search_all_moders, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(search_all_moders, IsSuperAdminOrAdmin(),
                                        all_users_callback.filter(category="moderators"))
-    dp.register_callback_query_handler(see_card_moder, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(see_card_moder, IsSuperAdminOrAdmin(),
                                        user_card_callback.filter(category="moderators", value="value"))
-    dp.register_callback_query_handler(admin_manage_moder, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(admin_manage_moder, IsSuperAdminOrAdmin(),
                                        user_card_callback.filter(category="moderators"))
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_count_moders, IsAdmin() | IsSuperAdmin(), text="count_moders")
+    dp.register_callback_query_handler(admin_count_moders, IsSuperAdminOrAdmin(), text="count_moders")
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_delete_all_moders, IsAdmin() | IsSuperAdmin(), text="delete_all_moders")
+    dp.register_callback_query_handler(admin_delete_all_moders, IsSuperAdminOrAdmin(), text="delete_all_moders")

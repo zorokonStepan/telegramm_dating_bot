@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user
-from tg_bot.filters import IsSuperAdmin, IsAdmin, IsModerator
+from tg_bot.filters import IsSuperAdminOrAdminOrModer, IsSuperAdminOrAdmin, IsSuperAdmin
 from tg_bot.handlers.all_users.start_main_menu import start_main_menu_client
 from tg_bot.handlers.templetes_handlers.tmp_misc import welcome_cap, welcome_block_call
 from tg_bot.keyboards.all_users.inline.start_menu_as_client import moderator_as_client_kb, admin_as_client_kb, \
@@ -52,9 +52,8 @@ async def back_super_admin_manage_admin_kb(call: types.CallbackQuery, state: FSM
 
 def register_handlers_manager(dp: Dispatcher):
     # запуск меню как у клиента но с кнопкой вепнуться в главное меню модераторам
-    dp.register_callback_query_handler(back_menu_as_client, IsSuperAdmin() | IsAdmin() | IsModerator(),
-                                       text="start_menu_as_client")
-    dp.register_callback_query_handler(back_admin_manage_moder_kb, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(back_menu_as_client, IsSuperAdminOrAdminOrModer(), text="start_menu_as_client")
+    dp.register_callback_query_handler(back_admin_manage_moder_kb, IsSuperAdminOrAdmin(),
                                        text="back_manage_moderators_menu", state="*")
-    dp.register_callback_query_handler(back_admin_manage_moder_kb, IsSuperAdmin(),
+    dp.register_callback_query_handler(back_super_admin_manage_admin_kb, IsSuperAdmin(),
                                        text="back_manage_admins_menu", state="*")

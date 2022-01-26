@@ -9,7 +9,7 @@ from tg_bot.database.schemas.book_complaints_commands.commands_book_complaints_d
     select_claim_record, delete_claim_record, add_record
 from tg_bot.database.schemas.users_commands.client_commands_users_db import select_state_clients
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user
-from tg_bot.filters import IsModerator, IsSuperAdmin, IsAdmin
+from tg_bot.filters import IsSuperAdminOrAdminOrModer
 from tg_bot.handlers.all_users.start_main_menu import start_main_menu_moderator, start_main_menu_super_admin, \
     start_main_menu_admin
 from tg_bot.handlers.templetes_handlers.tmp_card_user import search_all, see_card
@@ -183,17 +183,17 @@ async def action_claim_client(call: types.CallbackQuery, callback_data: dict, st
 
 def register_handlers_moderator(dp: Dispatcher):
     # модерация нового клиента
-    dp.register_callback_query_handler(search_all_wait_clients, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(search_all_wait_clients, IsSuperAdminOrAdminOrModer(),
                                        all_users_callback.filter(category="moder_wait_client"))
-    dp.register_callback_query_handler(see_card_wait_client, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(see_card_wait_client, IsSuperAdminOrAdminOrModer(),
                                        user_card_callback.filter(category="moder_wait_client", value="value"))
-    dp.register_callback_query_handler(moderation_wait_client, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(moderation_wait_client, IsSuperAdminOrAdminOrModer(),
                                        user_card_callback.filter(category="moder_wait_client"))
     # ------------------------------------------------------------------------------------------------------------------
     # просмотр жалоб
-    dp.register_callback_query_handler(search_all_claim_clients, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(search_all_claim_clients, IsSuperAdminOrAdminOrModer(),
                                        all_claim_records_callback.filter())
-    dp.register_callback_query_handler(see_card_claim_client, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(see_card_claim_client, IsSuperAdminOrAdminOrModer(),
                                        claim_record_callback.filter(value="value"))
-    dp.register_callback_query_handler(action_claim_client, IsModerator() | IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(action_claim_client, IsSuperAdminOrAdminOrModer(),
                                        claim_record_callback.filter())

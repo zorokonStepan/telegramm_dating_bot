@@ -10,7 +10,7 @@ from create_bot import bot
 from tg_bot.database.schemas.book_complaints_commands.commands_book_complaints_db import add_record
 from tg_bot.database.schemas.users_commands.client_commands_users_db import select_states_clients, unbanned_client
 from tg_bot.database.schemas.users_commands.common_commands_users_db import select_user, select_all_users
-from tg_bot.filters import IsAdmin, IsSuperAdmin
+from tg_bot.filters import IsSuperAdminOrAdmin
 from tg_bot.handlers.admin_menu.admin_change_settings_client import start_admin_change_settings_client
 from tg_bot.handlers.all_users.start_main_menu import start_main_menu_admin, start_main_menu_super_admin
 from tg_bot.handlers.templetes_handlers.tmp_card_user import search_all, see_card
@@ -172,19 +172,17 @@ async def admin_send_message_all_users(message: types.Message, state: FSMContext
     await message.delete()
 
 
-# возможно есть смысл сделать фильтр IsSuperAdminAndIsAdmin() - для поиска по БД за один запрос
 def register_admin_manage_client_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(search_all_clients, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(search_all_clients, IsSuperAdminOrAdmin(),
                                        all_users_callback.filter(category="all_clients"))
-    dp.register_callback_query_handler(see_card_client, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(see_card_client, IsSuperAdminOrAdmin(),
                                        user_card_callback.filter(category="all_clients", value="value"))
-    dp.register_callback_query_handler(moderation_client, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(moderation_client, IsSuperAdminOrAdmin(),
                                        user_card_callback.filter(category="all_clients"))
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_message_handler(admin_send_message_as_bot, IsAdmin() | IsSuperAdmin(),
+    dp.register_message_handler(admin_send_message_as_bot, IsSuperAdminOrAdmin(),
                                 state="admin_send_message_as_bot")
     # ------------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(admin_write_message_all_users, IsAdmin() | IsSuperAdmin(),
+    dp.register_callback_query_handler(admin_write_message_all_users, IsSuperAdminOrAdmin(),
                                        text="send_message_all_users")
-    dp.register_message_handler(admin_send_message_all_users, IsAdmin() | IsSuperAdmin(),
-                                state="send_message_all_users")
+    dp.register_message_handler(admin_send_message_all_users, IsSuperAdminOrAdmin(), state="send_message_all_users")

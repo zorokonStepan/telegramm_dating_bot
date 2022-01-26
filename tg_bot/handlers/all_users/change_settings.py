@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 from tg_bot.database.schemas.users_commands import common_commands_users_db as commands
-from tg_bot.filters import IsSuperAdmin, IsAdmin, IsModerator, IsClient
+from tg_bot.filters import IsSuperAdminOrAdminOrModerOrClient
 from tg_bot.handlers.templetes_handlers.tmp_card_user import see_card
 from tg_bot.handlers.templetes_handlers.tmp_change_settings import change_photo_user
 from tg_bot.handlers.templetes_handlers.tmp_misc import sleep_bot_delete_msg_message_delete, sleep_bot_del_msg, \
@@ -259,63 +259,62 @@ async def load_change_search_radius(message: types.Message, state: FSMContext):
         await sleep_bot_delete_msg_message_delete(msg, message)
 
 
-# возможно есть смысл сделать фильтр IsSuperAdmin_IsAdmin_IsModerator_IsClient() - для поиска по БД за один запрос
 def register_change_settings_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(change_settings, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_settings, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="srt_ch_set"))
-    dp.register_message_handler(change_settings, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(change_settings, IsSuperAdminOrAdminOrModerOrClient(),
                                 text="start_change_settings")
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_name, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_name, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="name"))
-    dp.register_message_handler(load_change_name, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_name, IsSuperAdminOrAdminOrModerOrClient(),
                                 state=Change.Name)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_age, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="age"))
-    dp.register_message_handler(load_change_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_age, IsSuperAdminOrAdminOrModerOrClient(),
                                 state=Change.Age)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_gender, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_gender, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="gender"))
-    dp.register_callback_query_handler(load_change_gender, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(load_change_gender, IsSuperAdminOrAdminOrModerOrClient(),
                                        gender_callback.filter(), state=Change.Gender)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_biography, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_biography, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="biography"))
-    dp.register_message_handler(load_change_biography, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_biography, IsSuperAdminOrAdminOrModerOrClient(),
                                 state=Change.Biography)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(see_first_photo, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(see_first_photo, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="photo"))
-    dp.register_callback_query_handler(see_photos, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(see_photos, IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="all_users", value="value"))
-    dp.register_callback_query_handler(change_photo, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_photo, IsSuperAdminOrAdminOrModerOrClient(),
                                        user_card_callback.filter(category="all_users"))
-    dp.register_message_handler(load_change_photo, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_photo, IsSuperAdminOrAdminOrModerOrClient(),
                                 content_types=['photo'], state=Change.Photo)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_location, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="loc"))
-    dp.register_message_handler(load_change_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_location, IsSuperAdminOrAdminOrModerOrClient(),
                                 content_types=types.ContentTypes.LOCATION, state=Change.Location)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_search_gender, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_search_gender, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="s_gender"))
-    dp.register_callback_query_handler(load_change_search_gender, IsSuperAdmin() | IsAdmin() | IsModerator() |
-                                       IsClient(), gender_callback.filter(), state=Change.SearchGender)
+    dp.register_callback_query_handler(load_change_search_gender, IsSuperAdminOrAdminOrModerOrClient(),
+                                       gender_callback.filter(), state=Change.SearchGender)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_search_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_search_age, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="s_age"))
-    dp.register_message_handler(load_change_search_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_search_age, IsSuperAdminOrAdminOrModerOrClient(),
                                 state=Change.SearchAge)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_search_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_search_location, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="s_loc"))
-    dp.register_message_handler(load_change_search_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_search_location, IsSuperAdminOrAdminOrModerOrClient(),
                                 content_types=types.ContentTypes.LOCATION, state=Change.SearchLocation)
     # -------------------------------------------------------------------------------------------------------------
-    dp.register_callback_query_handler(change_search_radius, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_callback_query_handler(change_search_radius, IsSuperAdminOrAdminOrModerOrClient(),
                                        change_user_callback.filter(param="s_radius"))
-    dp.register_message_handler(load_change_search_radius, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
+    dp.register_message_handler(load_change_search_radius, IsSuperAdminOrAdminOrModerOrClient(),
                                 state=Change.SearchRadius)
