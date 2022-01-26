@@ -4,7 +4,7 @@ from tg_bot.keyboards.all_users.inline.start_menu_as_client import start_menu_as
 from tg_bot.keyboards.callback_datas.cb_datas import all_users_callback, all_claim_records_callback
 
 
-def start_manager_kb(params: list) -> InlineKeyboardMarkup:
+def start_manager_kb(params: tuple) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=1)
 
     if "admin" in params:
@@ -37,7 +37,7 @@ def start_manager_kb(params: list) -> InlineKeyboardMarkup:
     return keyboard
 
 
-start_client_kb = start_menu_as_client_kb(params=["client"])
-start_moderator_kb = start_manager_kb(params=["moderator"])
-start_admin_kb = start_manager_kb(params=["moderator", "admin"])
-start_super_admin_kb = start_manager_kb(params=["moderator", "admin", "super_admin"])
+start_client_kb = start_menu_as_client_kb(params=("client",))
+start_moderator_kb = start_manager_kb(params=("moderator",))
+start_admin_kb = start_manager_kb(params=("moderator", "admin"))
+start_super_admin_kb = start_manager_kb(params=("moderator", "admin", "super_admin"))

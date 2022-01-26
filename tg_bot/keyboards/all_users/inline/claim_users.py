@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from tg_bot.keyboards.callback_datas.cb_datas import claim_record_callback, all_claim_records_callback
+from tg_bot.keyboards.keyboards_misc.for_keyboards import go_back_main_menu
 
 
 def get_claim_clients_kb(user_status: str, lst_records: list, page: int) -> InlineKeyboardMarkup:
@@ -35,21 +36,15 @@ def get_claim_clients_kb(user_status: str, lst_records: list, page: int) -> Inli
                                      callback_data=all_claim_records_callback.new(page=(page + 1)))
             )
 
-    if user_status == "moderator":
-        keyboard.add(
-            InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_moderator"))
-
-    elif user_status == "admin":
-        keyboard.add(InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_admin"))
-
-    elif user_status == "super_admin":
-        keyboard.add(InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_super_admin"))
+    # Вернуться в главное меню в зависимости от user_status
+    text, callback_data = go_back_main_menu(user_status)
+    keyboard.add(InlineKeyboardButton(text=text, callback_data=callback_data))
 
     return keyboard
 
 
 def get_card_claim_client_kb(user_status: str, page: int, photo_page: int, user_photo: list, claim_user_id: int,
-                             send_claim_user_id: int, parameters: list) -> InlineKeyboardMarkup:
+                             send_claim_user_id: int, parameters: tuple) -> InlineKeyboardMarkup:
     count_page_photo = len(user_photo)
     has_next_page = count_page_photo > photo_page
 
@@ -86,70 +81,64 @@ def get_card_claim_client_kb(user_status: str, page: int, photo_page: int, user_
                                                                              value="value"))
             )
 
-        if "change" in parameters:
-            if 1 < count_page_photo < 10:
-                keyboard.row(
-                    InlineKeyboardButton(text="Удалить фото",
-                                         callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
-                                                                                 claim_user_id=claim_user_id,
-                                                                                 send_claim_user_id=send_claim_user_id,
-                                                                                 value="delete_photo")),
-                    InlineKeyboardButton(text="Загрузить фото",
-                                         callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
-                                                                                 claim_user_id=claim_user_id,
-                                                                                 send_claim_user_id=send_claim_user_id,
-                                                                                 value="insert_photo"))
-                )
-            elif count_page_photo == 1:
-                keyboard.add(
-                    InlineKeyboardButton(text="Загрузить фото",
-                                         callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
-                                                                                 claim_user_id=claim_user_id,
-                                                                                 send_claim_user_id=send_claim_user_id,
-                                                                                 value="insert_photo"))
-                )
-            elif count_page_photo == 10:
-                keyboard.add(
-                    InlineKeyboardButton(text="Удалить фото",
-                                         callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
-                                                                                 claim_user_id=claim_user_id,
-                                                                                 send_claim_user_id=send_claim_user_id,
-                                                                                 value="delete_photo"))
-                )
-
-        if "see_complaint":
-            keyboard.add(
-                InlineKeyboardButton(text="Заблокировать пользователя на время",
+    # change_photo в коде не применялся, можно дать возможность админам делать это
+    if "change_photo" in parameters:
+        if 1 < count_page_photo < 10:
+            keyboard.row(
+                InlineKeyboardButton(text="Удалить фото",
                                      callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
                                                                              claim_user_id=claim_user_id,
                                                                              send_claim_user_id=send_claim_user_id,
-                                                                             value="banned_user_time")))
-            keyboard.add(
-                InlineKeyboardButton(text="Заблокировать пользователя навсегда",
+                                                                             value="delete_photo")),
+                InlineKeyboardButton(text="Загрузить фото",
                                      callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
                                                                              claim_user_id=claim_user_id,
                                                                              send_claim_user_id=send_claim_user_id,
-                                                                             value="banned_user_all_time")))
+                                                                             value="insert_photo"))
+            )
+        elif count_page_photo == 1:
             keyboard.add(
-                InlineKeyboardButton(text="Жалоба не обоснована",
+                InlineKeyboardButton(text="Загрузить фото",
                                      callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
                                                                              claim_user_id=claim_user_id,
                                                                              send_claim_user_id=send_claim_user_id,
-                                                                             value="not_substantiated")
-                                     ))
-
-        keyboard.add(InlineKeyboardButton(text="<<< Назад в общий список",
-                                          callback_data=all_claim_records_callback.new(page=page)))
-
-        if user_status == "moderator":
+                                                                             value="insert_photo"))
+            )
+        elif count_page_photo == 10:
             keyboard.add(
-                InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_moderator"))
+                InlineKeyboardButton(text="Удалить фото",
+                                     callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
+                                                                             claim_user_id=claim_user_id,
+                                                                             send_claim_user_id=send_claim_user_id,
+                                                                             value="delete_photo"))
+            )
 
-        elif user_status == "admin":
-            keyboard.add(InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_admin"))
+    if "see_complaint":
+        keyboard.add(
+            InlineKeyboardButton(text="Заблокировать пользователя на время",
+                                 callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
+                                                                         claim_user_id=claim_user_id,
+                                                                         send_claim_user_id=send_claim_user_id,
+                                                                         value="ban_time")))
+        keyboard.add(
+            InlineKeyboardButton(text="Заблокировать пользователя навсегда",
+                                 callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
+                                                                         claim_user_id=claim_user_id,
+                                                                         send_claim_user_id=send_claim_user_id,
+                                                                         value="ban_all_time")))
+        keyboard.add(
+            InlineKeyboardButton(text="Жалоба не обоснована",
+                                 callback_data=claim_record_callback.new(page=page, photo_page=photo_page,
+                                                                         claim_user_id=claim_user_id,
+                                                                         send_claim_user_id=send_claim_user_id,
+                                                                         value="not_sub")
+                                 ))
 
-        elif user_status == "super_admin":
-            keyboard.add(
-                InlineKeyboardButton(text="Вернуться в главное меню", callback_data="start_main_menu_super_admin"))
+    keyboard.add(InlineKeyboardButton(text="<<< Назад в общий список",
+                                      callback_data=all_claim_records_callback.new(page=page)))
+
+    # Вернуться в главное меню в зависимости от user_status
+    text, callback_data = go_back_main_menu(user_status)
+    keyboard.add(InlineKeyboardButton(text=text, callback_data=callback_data))
 
     return keyboard

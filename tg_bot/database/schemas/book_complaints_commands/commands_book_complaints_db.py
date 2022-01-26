@@ -4,6 +4,7 @@ from sqlalchemy import and_
 from tg_bot.database.schemas.book_complaints.book_complaints_db import ComplaintDB
 
 
+# создание новой записи
 async def add_record(manager_user_id: int = None, manager_username: str = None, banned_user_id: int = None,
                      banned_username: str = None, banned_reason: str = None, send_claim_user_id: int = None,
                      send_claim_username: str = None, send_claim_message: str = None, claim_user_id: int = None,
@@ -19,11 +20,13 @@ async def add_record(manager_user_id: int = None, manager_username: str = None, 
         pass
 
 
+# получение записей с жалобами
 async def select_claim_records():
     records = await ComplaintDB.query.where(ComplaintDB.claim_user_id != None).gino.all()
     return records
 
 
+# получение конкретной жалобы/если один и тот же жаловался на клиента несколько раз, то получим первую из этих записей
 async def select_claim_record(claim_user_id: int, send_claim_user_id: int):
     record = await ComplaintDB.query.where(and_(
         ComplaintDB.claim_user_id == claim_user_id,
@@ -31,6 +34,7 @@ async def select_claim_record(claim_user_id: int, send_claim_user_id: int):
     return record
 
 
+# удаление конкретной жалобы/если один и тот же жаловался на клиента несколько раз, то удаленим первую из этих записей
 async def delete_claim_record(claim_user_id: int, send_claim_user_id: int):
     try:
         record = await ComplaintDB.query.where(and_(

@@ -1,6 +1,7 @@
 from aiogram import Dispatcher
 
-from tg_bot.filters.status import IsSuperAdmin, IsAdmin, IsModerator, IsNewClient, IsWaitClient, IsClient, IsBannedClient
+from tg_bot.filters.status import IsSuperAdmin, IsAdmin, IsModerator, IsNewClient, IsWaitClient, IsClient, \
+    IsBannedClient
 
 
 def register_all_filters(dp: Dispatcher):

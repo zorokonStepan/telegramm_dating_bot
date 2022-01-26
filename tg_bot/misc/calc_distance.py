@@ -1,5 +1,6 @@
 from math import radians, pi, sin, cos, asin, sqrt, ceil
 
+'''две равнозначные функции для подсчета удаленности относительно заданного радиуса'''
 R = 6378.1
 
 
@@ -30,6 +31,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float):
     return ceil(rad * c)
 
 
+# проверка работы функций
 if __name__ == "__main__":
     lat1 = 51.528308
 
@@ -40,6 +42,6 @@ if __name__ == "__main__":
     lon2 = -74.2598661
 
     print(haversine(lat1, lon1, lat2, lon2), "K.M.")
-    print(calc_distance(lat1, lon1, lat2, lon2), "K.M.")
+    print(calc_distance_func(lat1, lon1, lat2, lon2), "K.M.")
     # 5571 км (по прямой)
     # Нью-Йорк — Лондон

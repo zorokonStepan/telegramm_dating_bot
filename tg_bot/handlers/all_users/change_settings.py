@@ -1,41 +1,39 @@
-from asyncio import sleep
 from typing import Union
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InputMedia
-from aiogram.utils.exceptions import BadRequest
 
-from create_bot import bot
-from config import time_sleep
 from tg_bot.database.schemas.users_commands import common_commands_users_db as commands
 from tg_bot.filters import IsSuperAdmin, IsAdmin, IsModerator, IsClient
+from tg_bot.handlers.templetes_handlers.tmp_card_user import see_card
+from tg_bot.handlers.templetes_handlers.tmp_change_settings import change_photo_user
+from tg_bot.handlers.templetes_handlers.tmp_misc import sleep_bot_delete_msg_message_delete, sleep_bot_del_msg, \
+    get_self_caption_users, \
+    welcome_cap, welcome_block_call, welcome_block_message, get_self_caption_for_change_photo_users
 from tg_bot.keyboards.all_users.inline.all_users import get_gender_kb, get_search_gender_kb
 from tg_bot.keyboards.all_users.inline.all_users_change_self_settings import get_settings_user_kb, get_user_photo_kb
-
 from tg_bot.keyboards.callback_datas.cb_datas import change_user_callback, gender_callback, user_card_callback
-from tg_bot.states.state_change import Change
-
-from tg_bot.misc.for_handlers import sleep_bot_delete_msg_message_delete, sleep_bot_del_msg
 from tg_bot.misc.user_status import status_user
+from tg_bot.states.user_states import Change
+
+"""Мои настройки в Меню в роли клиента. У клиента соответственно это главное меню."""
 
 
+# change_settings выводит клавиатуру для изменения настроек пользователя,
+# обработка кнопки - Мои настройки в меню в роли клиента
 async def change_settings(msg: Union[types.CallbackQuery, types.Message]):
     user_status = await status_user(msg)
     kb = get_settings_user_kb(user_status)
 
+    welcome_text = await welcome_cap(msg)
+
     if type(msg) == types.CallbackQuery:
-        try:
-            await msg.message.edit_text(text=f"Добро пожаловать в Бот Знакомств, {msg.from_user.full_name}",
-                                        reply_markup=kb)
-        except BadRequest:
-            await msg.message.delete()
-            await msg.message.answer(text=f"Добро пожаловать в Бот Знакомств, {msg.from_user.full_name}",
-                                     reply_markup=kb)
+        await welcome_block_call(msg, kb, welcome_text)
     else:
-        await msg.answer(text=f"Добро пожаловать в Бот Знакомств, {msg.from_user.full_name}", reply_markup=kb)
+        await welcome_block_message(msg, kb, welcome_text)
 
 
+# change_name - выводит приглашение на ввод нового имени пользователя
 async def change_name(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Введите ваше новое имя")
@@ -44,6 +42,7 @@ async def change_name(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_name загружаем новое имя пользователю
 async def load_change_name(message: types.Message, state: FSMContext):
     await commands.update_user_name(user_id=message.from_user.id, name=message.text)
     msg = await message.answer(f"У пользователя {message.from_user.username} установлено новое имя: {message.text}")
@@ -52,6 +51,7 @@ async def load_change_name(message: types.Message, state: FSMContext):
     await sleep_bot_delete_msg_message_delete(msg, message)
 
 
+# change_age - выводит приглашение на ввод нового возраста пользователя
 async def change_age(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Введите возраст")
@@ -60,6 +60,7 @@ async def change_age(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_age загружаем новый возраст пользователю
 async def load_change_age(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         await commands.update_user_age(user_id=message.from_user.id, age=int(message.text))
@@ -75,13 +76,15 @@ async def load_change_age(message: types.Message, state: FSMContext):
         await sleep_bot_delete_msg_message_delete(msg, message)
 
 
+# change_gender - выводит инлайн клавиатуру на ввод нового пола пользователя
 async def change_gender(call: types.CallbackQuery):
-    kb = get_gender_kb(params=["base"])
+    kb = get_gender_kb(params=("base",))
     await call.message.delete()
     await call.message.answer("Выберите кто вы", reply_markup=kb)
     await Change.Gender.set()
 
 
+# load_change_gender загружаем новый пол пользователю
 async def load_change_gender(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     gender = callback_data.get("gender")
     await commands.update_user_gender(user_id=call.from_user.id, gender=gender)
@@ -89,6 +92,7 @@ async def load_change_gender(call: types.CallbackQuery, callback_data: dict, sta
     await change_settings(call)
 
 
+# change_biography - выводит приглашение на ввод новой биографии пользователя
 async def change_biography(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Напишите о себе")
@@ -97,6 +101,7 @@ async def change_biography(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_biography загружаем новую биографию пользователю
 async def load_change_biography(message: types.Message, state: FSMContext):
     await commands.update_user_biography(user_id=message.from_user.id, biography=message.text)
     msg = await message.answer(f"{message.from_user.username}: {message.text}")
@@ -105,6 +110,7 @@ async def load_change_biography(message: types.Message, state: FSMContext):
     await sleep_bot_delete_msg_message_delete(msg, message)
 
 
+# see_first_photo - выводит инлайн клавиатуру с первым фото пользователя
 async def see_first_photo(call: types.CallbackQuery):
     user = await commands.select_user(call.from_user.id)
     user_photo = user.photo
@@ -112,68 +118,27 @@ async def see_first_photo(call: types.CallbackQuery):
     user_status = await status_user(call)
     kb = get_user_photo_kb(user_status=user_status, category="all_users", page=1, photo_page=1,
                            user_id=call.from_user.id, user_photo=user_photo)
-    caption = "Вы можете удалить или добавить фотографии. Фотографий не может быть меньше 1 шт и больше 10 шт"
+
+    caption = await get_self_caption_for_change_photo_users(user)
 
     await call.message.delete()
-    await call.message.answer_photo(photo=user.photo[0], caption=caption, reply_markup=kb)
+    if user.photo:
+        await call.message.answer_photo(photo=user.photo[0], caption=caption, reply_markup=kb)
+    else:
+        await call.message.answer(text=caption, reply_markup=kb)
 
 
+# see_photos - просмотр фото пользователя через инлайн клавиатуру
 async def see_photos(call: types.CallbackQuery, callback_data: dict):
-    page = int(callback_data.get("page"))
-    user_id = int(callback_data.get("user_id"))
-    photo_page = int(callback_data.get("photo_page"))
-    category = str(callback_data.get("category"))
-
-    user = await commands.select_user(user_id)
-
-    # id для отладки - удалить
-    caption = f"Фотографий не может быть меньше 1 шт и больше 10 шт\n" \
-              f"{user.user_id=} Мое имя: {user.name}, мне: {user.age}, @{user.username}.\n{user.biography}"
-    user_status = await status_user(call)
-    kb = get_user_photo_kb(user_status=user_status, user_id=user.user_id, user_photo=user.photo, page=page,
-                           photo_page=photo_page, category=category)
-
-    photo = InputMedia(type="photo", media=user.photo[photo_page - 1], caption=caption)
-
-    await call.message.edit_media(media=photo, reply_markup=kb)
+    await see_card(call, callback_data, params=("change_settings",), func_get_caption=get_self_caption_users)
 
 
+# change_photo - изменение фото пользователя через инлайн клавиатуру
 async def change_photo(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    user_id = int(callback_data.get("user_id"))
-    photo_page = int(callback_data.get("photo_page"))
-    value = callback_data.get("value")
-    user = await commands.select_user(user_id)
-
-    if value == "delete_photo":
-        if len(user.photo) > 1:
-            await call.answer()
-            await commands.delete_user_photo(user_id=user_id, index_delete_photo=photo_page - 1)
-            cb_data = callback_data
-            # чтобы не выходить за index out of range
-            if photo_page == 1:
-                cb_data["photo_page"] = photo_page
-            else:
-                cb_data["photo_page"] = photo_page - 1
-
-            await see_photos(call, cb_data)
-        else:
-            await call.answer("Должно быть минимум 1 фото")
-
-    elif value == "insert_photo":
-        if len(user.photo) < 10:
-            await call.answer()
-            msg = await call.message.answer("Отправьте фото.")
-            await Change.Photo.set()
-            async with state.proxy() as data:
-                data["photo_page"] = photo_page
-                data["call"] = call
-                data["callback_data"] = callback_data
-            await sleep(time_sleep)
-            await bot.delete_message(chat_id=msg.chat.id, message_id=msg.message_id)
-        else:
-            await call.answer("Больше 10 фото быть не может")
+    await change_photo_user(call, callback_data, state, func_see_photos=see_photos, IsUserSt=Change)
 
 
+# load_change_photo - добавляем фото в конец списка
 async def load_change_photo(message: types.Message, state: FSMContext):
     user = await commands.select_user(message.from_user.id)
     async with state.proxy() as data:
@@ -185,6 +150,7 @@ async def load_change_photo(message: types.Message, state: FSMContext):
         await state.finish()
 
 
+# change_location - отправляет предложение ввести новое местоположение
 async def change_location(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Отправьте свое местоположение(возможно только с мобильного устройства)")
@@ -193,6 +159,7 @@ async def change_location(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_location - записывает новое местоположение пользователя
 async def load_change_location(message: types.Message, state: FSMContext):
     location = message.location
     latitude = location.latitude
@@ -204,13 +171,15 @@ async def load_change_location(message: types.Message, state: FSMContext):
     await message.delete()
 
 
+# change_search_gender - отправляет предложение ввести новый пол для поиска
 async def change_search_gender(call: types.CallbackQuery):
-    kb = get_search_gender_kb(params=["base"])
+    kb = get_search_gender_kb(params=("base",))
     await call.message.delete()
     await call.message.answer("Выберите кого вы ищите", reply_markup=kb)
     await Change.SearchGender.set()
 
 
+# load_change_search_gender - записывает новый пол для поиска
 async def load_change_search_gender(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     gender = callback_data.get("gender")
     await commands.update_user_search_gender(user_id=call.from_user.id, search_gender=gender)
@@ -218,6 +187,7 @@ async def load_change_search_gender(call: types.CallbackQuery, callback_data: di
     await change_settings(call)
 
 
+# change_search_age - отправляет предложение ввести новый диапозон возраста для поиска
 async def change_search_age(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Введите два числа - диапозон поиска")
@@ -226,6 +196,7 @@ async def change_search_age(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_search_age - записывает новый диапозон возраста для поиска
 async def load_change_search_age(message: types.Message, state: FSMContext):
     msg_text = message.text.split()
     m_t = "".join(msg_text)
@@ -243,6 +214,7 @@ async def load_change_search_age(message: types.Message, state: FSMContext):
         await sleep_bot_delete_msg_message_delete(msg, message)
 
 
+# change_search_location - отправляет предложение ввести новое местоположение для поиска
 async def change_search_location(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Отправьте местоположение поиска(возможно только с мобильного устройства)")
@@ -251,6 +223,7 @@ async def change_search_location(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_search_location - записывает новое местоположение пользователя для поиска
 async def load_change_search_location(message: types.Message, state: FSMContext):
     location = message.location
     latitude = location.latitude
@@ -262,6 +235,7 @@ async def load_change_search_location(message: types.Message, state: FSMContext)
     await message.delete()
 
 
+# change_search_radius - отправляет предложение ввести новый радиус для поиска
 async def change_search_radius(call: types.CallbackQuery):
     await call.answer()
     msg = await call.message.answer("Введите радиус поиска одним числом в километрах")
@@ -270,6 +244,7 @@ async def change_search_radius(call: types.CallbackQuery):
     await sleep_bot_del_msg(msg)
 
 
+# load_change_search_radius - записывает новый радиус для поиска
 async def load_change_search_radius(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         await commands.update_user_search_radius(user_id=message.from_user.id, search_radius=int(message.text))
@@ -284,9 +259,10 @@ async def load_change_search_radius(message: types.Message, state: FSMContext):
         await sleep_bot_delete_msg_message_delete(msg, message)
 
 
+# возможно есть смысл сделать фильтр IsSuperAdmin_IsAdmin_IsModerator_IsClient() - для поиска по БД за один запрос
 def register_change_settings_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(change_settings, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="start_change_settings"))
+                                       change_user_callback.filter(param="srt_ch_set"))
     dp.register_message_handler(change_settings, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
                                 text="start_change_settings")
     # -------------------------------------------------------------------------------------------------------------
@@ -320,26 +296,26 @@ def register_change_settings_handlers(dp: Dispatcher):
                                 content_types=['photo'], state=Change.Photo)
     # -------------------------------------------------------------------------------------------------------------
     dp.register_callback_query_handler(change_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="location"))
+                                       change_user_callback.filter(param="loc"))
     dp.register_message_handler(load_change_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
                                 content_types=types.ContentTypes.LOCATION, state=Change.Location)
     # -------------------------------------------------------------------------------------------------------------
     dp.register_callback_query_handler(change_search_gender, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="search_gender"))
+                                       change_user_callback.filter(param="s_gender"))
     dp.register_callback_query_handler(load_change_search_gender, IsSuperAdmin() | IsAdmin() | IsModerator() |
                                        IsClient(), gender_callback.filter(), state=Change.SearchGender)
     # -------------------------------------------------------------------------------------------------------------
     dp.register_callback_query_handler(change_search_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="search_age"))
+                                       change_user_callback.filter(param="s_age"))
     dp.register_message_handler(load_change_search_age, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
                                 state=Change.SearchAge)
     # -------------------------------------------------------------------------------------------------------------
     dp.register_callback_query_handler(change_search_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="search_location"))
+                                       change_user_callback.filter(param="s_loc"))
     dp.register_message_handler(load_change_search_location, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
                                 content_types=types.ContentTypes.LOCATION, state=Change.SearchLocation)
     # -------------------------------------------------------------------------------------------------------------
     dp.register_callback_query_handler(change_search_radius, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
-                                       change_user_callback.filter(param="search_radius"))
+                                       change_user_callback.filter(param="s_radius"))
     dp.register_message_handler(load_change_search_radius, IsSuperAdmin() | IsAdmin() | IsModerator() | IsClient(),
                                 state=Change.SearchRadius)

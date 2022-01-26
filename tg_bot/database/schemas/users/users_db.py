@@ -9,7 +9,9 @@ class UserDB(TimedBaseModel):
     user_id = Column(BigInteger, unique=True, primary_key=True)
     username = Column(String(100), unique=True)
 
+    # для клиентов new_client, wait_client, client, banned_client
     client_state = Column(String(30))
+    # для управляющих super_admin, admin, moderator
     manager_post = Column(String(30))
 
     name = Column(String(50))

@@ -4,7 +4,6 @@ from aiogram import Dispatcher
 from aiogram.types import Update
 
 
-# @dp.errors_handler()
 async def errors_handler(update, exception):
     """
     Exceptions handler. Catches all exceptions within task factory tasks.

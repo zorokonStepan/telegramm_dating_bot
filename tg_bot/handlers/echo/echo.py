@@ -1,14 +1,11 @@
 from aiogram import types, Dispatcher
-import asyncio
 
-from create_bot import bot
+from tg_bot.handlers.templetes_handlers.tmp_misc import sleep_bot_delete_msg_message_delete
 
 
 async def echo_send(message: types.Message):
     msg = await message.answer(f"Неизвестная команда: {message.text}")
-    await asyncio.sleep(5)
-    await message.delete()
-    await bot.delete_message(msg.chat.id, msg.message_id)
+    await sleep_bot_delete_msg_message_delete(msg, message)
 
 
 def register_echo_hs(dp: Dispatcher):

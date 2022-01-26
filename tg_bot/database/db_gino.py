@@ -2,7 +2,6 @@ from typing import List
 
 import sqlalchemy as sa
 from sqlalchemy import Column, DateTime
-import datetime
 
 from create_bot import db
 

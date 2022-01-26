@@ -7,7 +7,7 @@ class ComplaintDB(TimedBaseModel):
     __tablename__ = 'book_complaints'
 
     table_id = Column(Integer, primary_key=True)
-    # кто сделал запись
+    # кто забанил
     manager_user_id = Column(BigInteger)
     manager_username = Column(String(100))
 

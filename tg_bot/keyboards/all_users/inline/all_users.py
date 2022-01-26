@@ -1,7 +1,20 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from tg_bot.keyboards.callback_datas.cb_datas import user_card_callback, all_users_callback, change_user_callback, \
-    change_user_card_callback, gender_callback
+    gender_callback, change_user_card_callback
+from tg_bot.keyboards.keyboards_misc.for_keyboards import go_back_main_menu
+
+
+def get_name_user(users_mutual_liking_id, user):
+    # лайкнутые но не просмотренные лайкнутыми пользователями карточки отмечаются *
+    if users_mutual_liking_id is None:
+        name = f"{user.name}"
+    else:
+        if user.user_id in users_mutual_liking_id:
+            name = f"{user.name}"
+        else:
+            name = f"*{user.name}"
+    return name
 
 
 def get_all_selected_users_kb(user_status: str, lst_users_cards: list, page: int, category: str,
@@ -14,29 +27,23 @@ def get_all_selected_users_kb(user_status: str, lst_users_cards: list, page: int
 
     for user in lst_users_cards[page - 1]:
 
-        if user_status != "client":
+        name = get_name_user(users_mutual_liking_id, user)
+
+        if user_status == "moderator" or user_status == "admin" or user_status == "super_admin":
+
             if user.client_state:
-                text = f"id = {user.user_id}, @{user.username}, {user.client_state}"
+                # если просматриваем карточку клиента
+                text = f"{name}, id = {user.user_id}, возраст: {user.age}, @{user.username}, {user.client_state}"
             else:
+                # если просматриваем карточку управляющего, name - может и не быть
                 text = f"id = {user.user_id}, @{user.username}, {user.manager_post}"
-
         else:
-            # лайкнутые но не просмотренные лайкнутыми пользователями карточки отмечаются *
-            if users_mutual_liking_id is None:
-                name = f"{user.name}"
-            else:
-                if user.user_id in users_mutual_liking_id:
-                    name = f"{user.name}"
-                else:
-                    name = f"*{user.name}"
-
-            text = (f"{name}, возраст: {user.age}, id = {user.user_id}")
+            text = f"{name}, возрат: {user.age}"
 
         keyboard.add(
-            InlineKeyboardButton(
-                text=text, callback_data=user_card_callback.new(category=category, page=page,
-                                                                photo_page=1, user_id=user.user_id,
-                                                                value="value")))
+            InlineKeyboardButton(text=text, callback_data=user_card_callback.new(category=category, page=page,
+                                                                                 photo_page=1, user_id=user.user_id,
+                                                                                 value="value")))
 
     if count_page > 1:
         if page == 1:
@@ -69,31 +76,22 @@ def get_all_selected_users_kb(user_status: str, lst_users_cards: list, page: int
             keyboard.add(InlineKeyboardButton(text="<<< Вернуться в меню в роли клиента",
                                               callback_data="start_menu_as_client"))
 
-    if user_status == "client":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_client"))
+    # ------------------------------------------------------------------------------------------------------------------
+    # Вернуться в главное меню в зависимости от user_status
+    text, callback_data = go_back_main_menu(user_status)
+    keyboard.add(InlineKeyboardButton(text=text, callback_data=callback_data))
 
-    elif user_status == "moderator":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_moderator"))
-
-    elif user_status == "admin":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_admin"))
-
-    elif user_status == "super_admin":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_super_admin"))
     return keyboard
 
 
 def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int, user_id: int, user_photo: list,
-                     parameters: list) -> InlineKeyboardMarkup:
+                     parameters: tuple) -> InlineKeyboardMarkup:
     count_page_photo = len(user_photo)
     has_next_page = count_page_photo > photo_page
 
     keyboard = InlineKeyboardMarkup(row_width=1)
 
+    # Симпатия или Пропуск
     if "like_dislikes" in parameters:
         keyboard.row(
             InlineKeyboardButton(text="Симпатия",
@@ -105,6 +103,7 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
                                                                       photo_page=photo_page,
                                                                       user_id=user_id, value="Dislike")))
 
+    # Удалить пользователя из своих пар
     if "delete_like" in parameters:
         keyboard.row(
             InlineKeyboardButton(text="Удалить пользователя из своих пар",
@@ -112,12 +111,14 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
                                                                       photo_page=photo_page,
                                                                       user_id=user_id, value="DeleteLike")))
 
+    # Послать жалобу
     if "complaint" in parameters:
         keyboard.add(InlineKeyboardButton(text="Послать жалобу",
                                           callback_data=user_card_callback.new(category=category, page=page,
                                                                                photo_page=photo_page,
                                                                                user_id=user_id, value="Complaint")))
 
+    # у управляющих может не быть фото
     if user_photo and count_page_photo > 1:
         if photo_page == 1:
             keyboard.add(
@@ -146,7 +147,7 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
 
     if "change_photo" in parameters:
 
-        if count_page_photo == 1:
+        if count_page_photo <= 1:
             keyboard.add(
                 InlineKeyboardButton(text="Загрузить фото",
                                      callback_data=user_card_callback.new(category=category, page=page,
@@ -184,48 +185,41 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
     if "moderation" in parameters:
         keyboard.row(
             InlineKeyboardButton(text="Пропустить пользователя", callback_data=user_card_callback.new(
-                category=category, page=page, photo_page=photo_page, user_id=user_id, value="moderation_true")),
+                category=category, page=page, photo_page=photo_page, user_id=user_id, value="moder_true")),
             InlineKeyboardButton(text="Отклонить пользователя", callback_data=user_card_callback.new(
-                category=category, page=page, photo_page=photo_page, user_id=user_id, value="moderation_false"))
-        )
-
-    if "see_complaint" in parameters:
-        keyboard.add(
-            InlineKeyboardButton(text="Заблокировать пользователя на время", callback_data="banned_user_time"),
-            InlineKeyboardButton(text="Заблокировать пользователя навсегда", callback_data="banned_user_all_time"),
-            InlineKeyboardButton(text="Жалоба не обоснована", callback_data="delete_complaint")
+                category=category, page=page, photo_page=photo_page, user_id=user_id, value="moder_false"))
         )
 
     if "banned" in parameters:
         keyboard.add(
             InlineKeyboardButton(text="Заблокировать пользователя на время", callback_data=user_card_callback.new(
                 category=category, page=page, photo_page=photo_page, user_id=user_id,
-                value="admin_banned_user_time")),
+                value="admin_ban_time")),
             InlineKeyboardButton(text="Заблокировать пользователя навсегда", callback_data=user_card_callback.new(
                 category=category, page=page, photo_page=photo_page, user_id=user_id,
-                value="admin_banned_user_all_time")),
+                value="admin_ban_all_time")),
             InlineKeyboardButton(text="Разблокировать пользователя", callback_data=user_card_callback.new(
                 category=category, page=page, photo_page=photo_page, user_id=user_id,
-                value="admin_unbanned_user"))
+                value="admin_unban"))
         )
 
     if "send_message_as_bot" in parameters:
         keyboard.add(
             InlineKeyboardButton(text="Послать сообщение от имени бота", callback_data=user_card_callback.new(
                 category=category, page=page, photo_page=photo_page, user_id=user_id,
-                value="send_message_as_bot"))
+                value="send_mes_as_bot"))
         )
 
     if "delete_manager" in parameters:
         keyboard.add(
             InlineKeyboardButton(text="Удалить пользователя", callback_data=user_card_callback.new(
-                category=category, page=page, photo_page=photo_page, user_id=user_id, value="delete_manager"))
+                category=category, page=page, photo_page=photo_page, user_id=user_id, value="del_mngr"))
         )
 
     if "make_manager_admin" in parameters:
         keyboard.add(
             InlineKeyboardButton(text="Сделать администратором", callback_data=user_card_callback.new(
-                category=category, page=page, photo_page=photo_page, user_id=user_id, value="make_manager_admin")
+                category=category, page=page, photo_page=photo_page, user_id=user_id, value="do_mngr_admin")
                                  ))
 
     if "make_manager_super_admin" in parameters:
@@ -233,19 +227,19 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
             InlineKeyboardButton(text="Сделать super администратором",
                                  callback_data=user_card_callback.new(category=category, page=page,
                                                                       photo_page=photo_page, user_id=user_id,
-                                                                      value="make_manager_super_admin")
+                                                                      value="do_mngr_s_admin")
                                  ))
 
     if "make_manager_moderator" in parameters:
         keyboard.add(
             InlineKeyboardButton(text="Сделать модератором", callback_data=user_card_callback.new(
                 category=category, page=page, photo_page=photo_page, user_id=user_id,
-                value="make_manager_moderator")
+                value="make_mngr_moder")
                                  ))
 
     if "back_settings" in parameters:
         keyboard.add(InlineKeyboardButton(text="<<< Назад в список настроек",
-                                          callback_data=change_user_callback.new("start_change_settings")))
+                                          callback_data=change_user_callback.new("srt_ch_set")))
     else:
         keyboard.add(InlineKeyboardButton(text="<<< Назад в общий список",
                                           callback_data=all_users_callback.new(category=category, page=page)))
@@ -256,26 +250,15 @@ def get_card_user_kb(user_status: str, category: str, page: int, photo_page: int
             keyboard.add(InlineKeyboardButton(text="<<< Вернуться в меню в роли клиента",
                                               callback_data="start_menu_as_client"))
 
-    if user_status == "client":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_client"))
-
-    elif user_status == "moderator":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_moderator"))
-
-    elif user_status == "admin":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_admin"))
-
-    elif user_status == "super_admin":
-        keyboard.add(InlineKeyboardButton(text="<<< Вернуться в главное меню",
-                                          callback_data="start_main_menu_super_admin"))
+    # ------------------------------------------------------------------------------------------------------------------
+    # Вернуться в главное меню в зависимости от user_status
+    text, callback_data = go_back_main_menu(user_status)
+    keyboard.add(InlineKeyboardButton(text=text, callback_data=callback_data))
 
     return keyboard
 
 
-def get_gender_kb(params: list) -> InlineKeyboardMarkup:
+def get_gender_kb(params: tuple) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=1)
 
     if "base" in params:
@@ -289,7 +272,7 @@ def get_gender_kb(params: list) -> InlineKeyboardMarkup:
     return keyboard
 
 
-def get_search_gender_kb(params: list) -> InlineKeyboardMarkup:
+def get_search_gender_kb(params: tuple) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=1)
 
     if "base" in params:

@@ -1,7 +1,7 @@
-from .manager_misc import register_manager_misc_handlers
+from .manager import register_handlers_manager
 
 from aiogram import Dispatcher
 
 
 def register_manager_handlers(dp: Dispatcher):
-    register_manager_misc_handlers(dp)
+    register_handlers_manager(dp)

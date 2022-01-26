@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from tg_bot.keyboards.callback_datas.cb_datas import all_users_callback
 
 
-def manage_moderator_kb(params: list) -> InlineKeyboardMarkup:
+def manage_moderator_kb(params: tuple) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=1)
 
     keyboard.add(InlineKeyboardButton(text="Добавить модератора", callback_data="add_moder"))
@@ -23,8 +23,8 @@ def manage_moderator_kb(params: list) -> InlineKeyboardMarkup:
     return keyboard
 
 
-admin_manage_moderators_kb = manage_moderator_kb(params=["admin"])
-super_admin_manage_moderators_kb = manage_moderator_kb(params=["super_admin"])
+admin_manage_moderators_kb = manage_moderator_kb(params=("admin",))
+super_admin_manage_moderators_kb = manage_moderator_kb(params=("super_admin",))
 
 super_admin_manage_admins_kb = InlineKeyboardMarkup(
     inline_keyboard=[
