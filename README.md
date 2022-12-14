@@ -123,3 +123,27 @@ title="start_admin.png">
   <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_moderator.png" width="450" 
 title="start_moderator.png">
 </p>
+
+Команда start для нового пользователя:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_new_user.png" width="450" 
+title="start_new_user.png">
+</p>
+
+Команда start пользователя ожидающего проверки:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_waiting_user.png" width="450" 
+title="start_waiting_user.png">
+</p>
+
+Команда start забанненого пользователя:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_banned_user.png" width="450" 
+title="start_banned_user.png">
+</p>
+
+Команда start пользователя:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_user.png" width="450" 
+title="start_user.png">
+</p>
