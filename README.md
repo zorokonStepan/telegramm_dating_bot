@@ -130,6 +130,18 @@ title="start_moderator.png">
 title="start_new_user.png">
 </p>
 
+Регистрация нового пользователя, начало:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/reg_new_user_start.png" width="450" 
+title="reg_new_user_start.png">
+</p>
+
+Регистрация нового пользователя, конец:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/reg_new_user_end.png" width="450" 
+title="reg_new_user_end.png">
+</p>
+
 Команда start пользователя ожидающего проверки:
 <p align="center">
   <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_waiting_user.png" width="450" 
@@ -146,4 +158,46 @@ title="start_banned_user.png">
 <p align="center">
   <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_user.png" width="450" 
 title="start_user.png">
+</p>
+
+Страница пользователя:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/user_page.png" width="450" 
+title="user_page.png">
+</p>
+
+Список карточек:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/list_cards.png" width="450" 
+title="list_cards.png">
+</p>
+
+Меню изменения своих настроек пользователем:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/menu_changing_user.png" width="450" 
+title="menu_changing_user.png">
+</p>
+
+Меню изменения настроек пользователя администратором:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/menu_admin_change_user_settings.png" width="450" 
+title="menu_admin_change_user_settings.png">
+</p>
+
+Меню администраторов для управление клиентами:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/admin_panel.png" width="450" 
+title="admin_panel.png">
+</p>
+
+Меню супер администратора для управления администраторами:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/superadmin_panel.png" width="450" 
+title="superadmin_panel.png">
+</p>
+
+Меню управления модераторами:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/manage_moder.png" width="450" 
+title="manage_moder.png">
 </p>
