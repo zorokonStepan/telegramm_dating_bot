@@ -111,3 +111,15 @@ Telegram-бот онлайн-знакомств
   <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_superadmin.png" width="450" 
 title="start_superadmin.png">
 </p>
+
+Команда start для администратора:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_admin.png" width="450" 
+title="start_admin.png">
+</p>
+
+Команда start для модератора:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_moderator.png" width="450" 
+title="start_moderator.png">
+</p>
