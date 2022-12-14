@@ -8,7 +8,7 @@
 
 
 
-ТЗ на разработку Telegram-бота онлайн-знакомств
+Telegram-бот онлайн-знакомств
 =========================================
 
 
@@ -104,3 +104,10 @@
 3.5 Все настройки должны быть вынесены в конфигурационный файл или соответсвующие записи БД.
 
 3.6 Логирование.
+
+
+Команда start super администратора:
+<p align="center">
+  <img src="https://github.com/zorokonStepan/telegramm_dating_bot/raw/main/img_git/start_superadmin.png" width="450" 
+title="start_superadmin.png">
+</p>
